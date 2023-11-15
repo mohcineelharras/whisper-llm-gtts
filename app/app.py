@@ -10,10 +10,10 @@ import time  # Import time module
 import sounddevice as sd
 import soundfile as sf
 import numpy as np
-
+from ctransformers import AutoModelForCausalLM
 
 # Set up OpenAI and TTS
-api_base = "http://127.0.0.1:5001/v1" # point to the local server
+#api_base = "http://127.0.0.1:5001/v1" # point to the local server
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 #tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
 #tts.to(device=device)
@@ -48,6 +48,26 @@ def get_response_from_gpt(text):
     response = llm(formatted_prompt)
     return response
 
+@st.cache_resource
+def llm_model():
+    model = AutoModelForCausalLM.from_pretrained("TheBloke/dolphin-2.2.1-mistral-7B-GGUF",
+                                                model_file="dolphin-2.2.1-mistral-7b.Q4_K_M.gguf",
+                                                model_type="mistral",
+                                                gpu_layers=20,
+                                                max_new_tokens=50,
+                                                #mlock=True,
+                                                threads=8,
+                                                temperature=0.2)
+    return model
+
+llm_ctransformers = llm_model()
+
+def get_response_from_hf_transformers(text):
+    # Load the model
+    response = llm_ctransformers(text)
+    return response
+
+
 
 # Updated transcribe_audio function to save transcription
 def transcribe_audio(audio_file_path):
@@ -74,7 +94,7 @@ def transcribe_audio(audio_file_path):
     with open("output/input.txt", "w") as file:
         file.write(result_text)
     return result_text
-import subprocess
+
 
 def record_audio(duration=5, fs=44100, filename="output/recording.wav"):
     try:
@@ -87,7 +107,17 @@ def record_audio(duration=5, fs=44100, filename="output/recording.wav"):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
+#App
+
+
+
 def main():
+    with st.sidebar:
+        st.title("🤖 whisper - LLM - TTS 📚")
+        st.write("🚀 Talk to an open source LLM!")
+        st.write("This app is developed and maintained by **@mohcineelharras**")
+    
     if not os.path.exists("output"):
         os.makedirs("output")
         
@@ -117,7 +147,8 @@ def main():
             start_time = time.time()
             st.header("LLM prompting")
             with st.spinner('Processing with LLM...'):
-                llm_response = get_response_from_gpt(transcribed_text)
+                #llm_response = get_response_from_gpt(transcribed_text)
+                llm_response = get_response_from_hf_transformers(transcribed_text)
                 with open('output/LLM_response.txt', 'w') as file:
                     file.write(llm_response)
             elapsed_time = time.time() - start_time
@@ -157,7 +188,8 @@ def main():
             start_time = time.time()
             st.header("LLM prompting")
             with st.spinner('Processing with LLM...'):
-                llm_response = get_response_from_gpt(transcribed_text)
+                #llm_response = get_response_from_gpt(transcribed_text)
+                llm_response = get_response_from_hf_transformers(transcribed_text)
                 with open('output/LLM_response.txt', 'w') as file:
                     file.write(llm_response)
             elapsed_time = time.time() - start_time
@@ -186,7 +218,8 @@ def main():
             start_time = time.time()  # Start the timer
             st.header("LLM prompting")
             with st.spinner('Processing...'):
-                llm_response = get_response_from_gpt(user_question)
+                #llm_response = get_response_from_gpt(user_question)
+                llm_response = get_response_from_hf_transformers(user_question)
                 with open('output/LLM_response.txt', 'w') as file:
                     file.write(llm_response)
             elapsed_time = time.time() - start_time  # Calculate elapsed time

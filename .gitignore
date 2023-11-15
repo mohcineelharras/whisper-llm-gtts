@@ -168,3 +168,4 @@ cython_debug/
 *.pdf
 *test
 test*
+*_noversions*

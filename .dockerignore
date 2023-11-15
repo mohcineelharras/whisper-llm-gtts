@@ -6,7 +6,6 @@ __pycache__
 *.sqlite3
 *.log
 *.md
-*.txt
 output/
 data/
 data_html/

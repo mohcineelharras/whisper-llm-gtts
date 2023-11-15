@@ -85,12 +85,5 @@ You can also run VoiceAI in a Docker container for added convenience. Follow the
 
 To access the app, open a web browser and navigate to [http://localhost](http://localhost).
 
-## Contributing
 
-We welcome contributions from the community. If you'd like to contribute to VoiceAI, please review our [Contributing Guidelines](CONTRIBUTING.md).
-
-## License
-
-VoiceAI is licensed under the MIT License. For details, see the [LICENSE](LICENSE) file.
-```
 
