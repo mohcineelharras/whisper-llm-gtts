@@ -87,3 +87,6 @@ To access the app, open a web browser and navigate to [http://localhost](http://
 
 
 
+
+
+uvicorn api_server:app --reload

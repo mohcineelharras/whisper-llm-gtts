@@ -10,7 +10,7 @@ import time  # Import time module
 import sounddevice as sd
 import soundfile as sf
 import numpy as np
-from ctransformers import AutoModelForCausalLM
+import requests
 
 # Set up OpenAI and TTS
 #api_base = "http://127.0.0.1:5001/v1" # point to the local server
@@ -48,24 +48,16 @@ def get_response_from_gpt(text):
     response = llm(formatted_prompt)
     return response
 
-@st.cache_resource
-def llm_model():
-    model = AutoModelForCausalLM.from_pretrained("TheBloke/dolphin-2.2.1-mistral-7B-GGUF",
-                                                model_file="dolphin-2.2.1-mistral-7b.Q4_K_M.gguf",
-                                                model_type="mistral",
-                                                gpu_layers=20,
-                                                max_new_tokens=50,
-                                                #mlock=True,
-                                                threads=8,
-                                                temperature=0.2)
-    return model
-
-llm_ctransformers = llm_model()
 
 def get_response_from_hf_transformers(text):
-    # Load the model
-    response = llm_ctransformers(text)
-    return response
+    response = requests.post(
+        "http://127.0.0.1:8000/completion",
+        json={"text": text}  # Send data as JSON
+    )
+    if response.status_code == 200:
+        return response.json()['response']
+    else:
+        return "Error: " + response.text
 
 
 
@@ -109,8 +101,6 @@ def record_audio(duration=5, fs=44100, filename="output/recording.wav"):
 
 
 #App
-
-
 
 def main():
     with st.sidebar:

@@ -280,4 +280,5 @@ yarl==1.9.2
 zipp==3.17.0
 # Or with CUDA GPU acceleration
 ctransformers[cuda]
-
+fastapi 
+uvicorn
