@@ -170,3 +170,4 @@ cython_debug/
 test*
 *_noversions*
 models*
+*.gguf

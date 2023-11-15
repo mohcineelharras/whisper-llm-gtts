@@ -14,14 +14,12 @@ WORKDIR /app
 # Copy the requirements file from the parent directory into the container
 COPY requirements.txt /app/
 
-# Copy the rest of the project files and directories from the parent directory into /app/ in the container
-COPY . /app/
-
 # Install Python dependencies from requirements.txt
 RUN pip install -r requirements.txt
 
-# Copy the rest of your application code into the container
-COPY . .
+# Copy the rest of the project files and directories from the parent directory into /app/ in the container
+COPY . /app
+
 
 # Expose the port that Streamlit will use (8501 by default)
 EXPOSE 8501  
