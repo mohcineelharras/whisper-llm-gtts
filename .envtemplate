@@ -1,0 +1,7 @@
+#url=localhost
+#MODEL_DIR=models
+#MODEL_PATH=models/dolphin-2.2.1-mistral-7b.Q6_K.gguf
+
+url=fastapi
+MODEL_DIR=/app/models
+MODEL_PATH=/app/models/dolphin-2.2.1-mistral-7b.Q6_K.gguf

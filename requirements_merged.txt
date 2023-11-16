@@ -1,5 +1,13 @@
 #ctransformers
 python-dotenv
+sounddevice
+pyaudio
+soundfile
+streamlit
+ipykernel
+ipywidgets
+jupyter
+
 fastapi 
 uvicorn
 transformers

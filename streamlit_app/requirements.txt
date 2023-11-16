@@ -5,3 +5,4 @@ streamlit
 ipykernel
 ipywidgets
 jupyter
+python-dotenv

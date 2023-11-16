@@ -1,13 +1,20 @@
 version: '3.8'
+
 services:
-  fastapi-server:
+  fastapi:
     build:
       context: ./fastapi
       dockerfile: Dockerfile-fastapi
+    #runtime: nvidia
+    env_file:
+      - .env
+    volumes:
+      - ./models:/app/models  
+      - ./output:/app/output
     ports:
       - "8000:8000"
-    volumes:
-      - ./models/:/usr/src/app/models
+    networks:
+      - app-network
     deploy:
       resources:
         reservations:
@@ -16,18 +23,22 @@ services:
               device_ids: ['0']
               capabilities: [gpu]
 
-  streamlit-app:
+
+  streamlit:
     build:
       context: ./streamlit_app
       dockerfile: Dockerfile-streamlit
+    env_file:
+      - .env
+    volumes:
+      - ./output:/output
     ports:
       - "8501:8501"
     depends_on:
-      - fastapi-server
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ['0']
-              capabilities: [gpu]
+      - fastapi
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

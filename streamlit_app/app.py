@@ -1,17 +1,29 @@
 #-----------------------------------Libraries-----------------------------------
 import streamlit as st
 import os
+from dotenv import load_dotenv
 import time 
 import requests
+import pyaudio
+import wave
 
 #-----------------------------------fastapi functions-----------------------------------
+
+# Load environment variables from .env file
+load_dotenv(dotenv_path="../.env")
+
+# Access the variables
+url = os.getenv("url")
+MODEL_DIR = os.getenv("MODEL_DIR")
+MODEL_PATH = os.getenv("MODEL_PATH")
+
 
 # FastAPI request function
 # Example of sending a file
 
 def download_youtube_audio(video_url):
     response = requests.post(
-        "http://localhost:8000/download_youtube_audio",
+        f"http://{url}:8000/download_youtube_audio",
         json={"text": video_url}  # Send data as JSON
     )
     if response.status_code == 200:
@@ -21,7 +33,7 @@ def download_youtube_audio(video_url):
 
 def convert_text_to_speech(text, language="en"):
     response = requests.post(
-        "http://localhost:8000/convert_text_to_speech",
+        f"http://{url}:8000/convert_text_to_speech",
         json={"text": text}  # Send data as JSON
     )
     if response.status_code == 200:
@@ -31,7 +43,7 @@ def convert_text_to_speech(text, language="en"):
 
 def get_response_from_hf_transformers(text):
     response = requests.post(
-        "http://localhost:8000/completion",
+        f"http://{url}:8000/completion",
         json={"text": text}  # Send data as JSON
     )
     if response.status_code == 200:
@@ -42,7 +54,7 @@ def get_response_from_hf_transformers(text):
 # Updated transcribe_audio function to save transcription
 def transcribe_audio(audio_file_path):
     response = requests.post(
-        "http://localhost:8000/transcribe_audio",
+        f"http://{url}:8000/transcribe_audio",
         params={"file_path": audio_file_path}  # Include the file_path parameter
     )
     if response.status_code == 200:
@@ -51,6 +63,45 @@ def transcribe_audio(audio_file_path):
     else:
         return "Error: " + response.text
     
+def record_audio():
+    # Audio stream parameters
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 44100
+    CHUNK = 1024
+    RECORD_SECONDS = 10
+    FILE_NAME = "../output/recording.wav"
+
+    audio = pyaudio.PyAudio()
+
+    # Open audio stream
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                        rate=RATE, input=True,
+                        frames_per_buffer=CHUNK)
+
+    print("Recording...")
+
+    frames = []
+
+    # Record for 10 seconds
+    for _ in range(int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+
+    print("Finished recording.")
+
+    # Stop and close the stream
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+
+    # Save recording to file
+    with wave.open(FILE_NAME, 'wb') as wf:
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(audio.get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b''.join(frames))
+
 #-----------------------------------streamlit frontend-----------------------------------
 
 #App
@@ -134,7 +185,6 @@ def main():
             st.write("LLM response :",llm_response)
 
             # Automatically generate text to speech
-            st.write("Generating text to speech: ")
             start_time = time.time()
             st.header("Text2Speech")
             convert_text_to_speech(llm_response, language="en")

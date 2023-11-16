@@ -1,52 +1,76 @@
 #-----------------------------------Libraries-----------------------------------
 from fastapi import FastAPI
 from fastapi import UploadFile, File
-from ctransformers import AutoModelForCausalLM
+#from ctransformers import AutoModelForCausalLM
+from llama_cpp import Llama  
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from pytube import YouTube
 from gtts import gTTS
 import torch
-import requests
 import os
+from dotenv import load_dotenv
+
 #-----------------------------------env variables-----------------------------------
 
-MODEL_DIR = "../models"
-MODEL_NAME = "TheBloke/dolphin-2.2.1-mistral-7B-GGUF"
-MODEL_PATH = os.path.join(MODEL_DIR, "dolphin-2.2.1-mistral-7b.Q6_K.gguf")
+# Load environment variables from .env file
+load_dotenv(dotenv_path="../.env")
+# Access the variables
+url = os.getenv("url")
+MODEL_DIR = os.getenv("MODEL_DIR")
+MODEL_PATH = os.getenv("MODEL_PATH")
+#print(MODEL_PATH)
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
+
+# MODEL_DIR = "/app/models"  # Update this to the path inside the container
+# MODEL_PATH = os.path.join(MODEL_DIR, "dolphin-2.2.1-mistral-7b.Q6_K.gguf")
+# device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
 #-----------------------------------init-----------------------------------
 app = FastAPI()
+
 # Cache the ctransformer model
+# @app.on_event("startup")
+# async def load_model():
+#     global llm
+#     if not os.path.exists(MODEL_PATH):
+#         # Download the model
+#         llm = AutoModelForCausalLM.from_pretrained(
+#             "TheBloke/dolphin-2.2.1-mistral-7B-GGUF",
+#             model_file="dolphin-2.2.1-mistral-7b.Q6_K.gguf",
+#             model_type="mistral",
+#             gpu_layers=20,
+#             max_new_tokens=50,
+#             threads=8,
+#             temperature=0.2
+#         )
+#         pass
+#     else:
+#         print("local files")
+#         llm = AutoModelForCausalLM.from_pretrained(
+#             MODEL_PATH,
+#             local_files_only=True,
+#             model_file="dolphin-2.2.1-mistral-7b.Q6_K.gguf",
+#             model_type="mistral",
+#             gpu_layers=20,
+#             max_new_tokens=50,
+#             threads=8,
+#             temperature=0.2
+#         )
 @app.on_event("startup")
 async def load_model():
-    global ctransformer_model
+    global llm
     if not os.path.exists(MODEL_PATH):
-        # Download the model
-        ctransformer_model = AutoModelForCausalLM.from_pretrained(
-            "TheBloke/dolphin-2.2.1-mistral-7B-GGUF",
-            model_file="dolphin-2.2.1-mistral-7b.Q6_K.gguf",
-            model_type="mistral",
-            gpu_layers=20,
-            max_new_tokens=50,
-            threads=8,
-            temperature=0.2
-        )
-        pass
+        # Logic for handling the case where the model file doesn't exist
+        print("Model file not found!")
+        # You might want to download the model file here or raise an exception
     else:
-        print("local files")
-        ctransformer_model = AutoModelForCausalLM.from_pretrained(
-            MODEL_PATH,
-            local_files_only=True,
-            model_file="dolphin-2.2.1-mistral-7b.Q6_K.gguf",
-            model_type="mistral",
-            gpu_layers=20,
-            max_new_tokens=50,
-            threads=8,
-            temperature=0.2
-        )
+        print("Loading Llama model...")
+        llm = Llama(model_path=MODEL_PATH,
+                    n_gpu_layers=20,
+                    n_ctx=1024, n_batch=512)
+        print("Model loaded successfully.")
 
 
 if not os.path.exists("../output"):
@@ -61,10 +85,17 @@ async def completion(request: dict):
     template = "system\nYou are Dolphin, a helpful AI assistant. Provide the shortest answer possible. Respond to the question to the best of your ability\nuser\n{prompt}\nassistant\n"
     # Format the actual prompt with the template
     formatted_prompt = template.format(prompt=input_text)
-    response = ctransformer_model(formatted_prompt)
+    response = llm(formatted_prompt,
+                    max_tokens=50,
+                    temperature=0.5,
+                    top_p=0.95,
+                    top_k=10,
+                   )
+    text_response = response["choices"][0]["text"]
     with open('../output/LLM_response.txt', 'w') as file:
-        file.write(response)
-    return {"response": response}
+        print(text_response)
+        file.write(text_response)
+    return {"response": text_response}
 
 
 @app.post("/download_youtube_audio")
