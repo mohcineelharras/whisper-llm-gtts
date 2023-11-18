@@ -42,56 +42,77 @@ Ensure you have the following before proceeding with the installation:
 
 ### Installation
 
-Clone the VoiceAI repository and install the necessary dependencies:
+Clone the project repository :
 
 ```bash
-git clone https://github.com/yourusername/VoiceAI.git
-cd VoiceAI
+git@github.com:mohcineelharras/whisper-llm-gtts.git
+cd whisper-llm-gtts
+```
+
+Dependencies installation :
+```bash
 pip install -r requirements_merged.txt
 ```
+```bash
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
+```
+
+If you have got problems with offloading some layers to GPU for acceleration of token generation. try this :
+```bash
+conda install -c "nvidia/label/cuda-12.1.1" cuda-toolkit
+```
+
+### Automatic Environment Setup
+
+For a conventional setup using `conda`, launch `install.sh` located at the root of the project. This script automates creating an env called `audio` and dependencies installation:
+```bash
+./install.sh
+```
+
 
 ## Usage
 
-VoiceAI provides robust audio and language processing features:
+whisper-llm-gtts provides robust audio and language processing features:
 
-### Environment Setup
-
-For a conventional setup using `venv` or `conda`, launch `run.sh` located at the root of the project. This script automates the environment creation, dependency installation, and starts both the server and frontend:
-
-```bash
-bash run.sh
-```
 
 ### Running the App
 
-To use VoiceAI, you need to open two terminals:
+To use whisper-llm-gtts, you need to open two terminals:
 
 - In the first terminal, launch FastAPI:
 
   ```bash
+  conda activate audio
+  cd fastapi
   python fastapi/api_server.py
   ```
 
 - In the second terminal, start the Streamlit frontend:
 
   ```bash
+  conda activate audio
+  cd streamlit_app
   streamlit run streamlit_app/run app.py
   ```
 
 ## Dockerization
 
-The optimal way to run VoiceAI with Docker is using Docker Compose:
+The optimal way to run whisper-llm-gtts with Docker is using Docker Compose:
+
+⚠️⚠️⚠️ before building image. Make sure you uncomment docker section in .env file
+
+Afterwards, you have to create a folder names models and download the model you want to use in it
+
+Then, run this command in the root of the project to build and start the containers.
 
 ```bash
 docker-compose up --build
 ```
 
-Run this command in the root of the project to build and start the containers.
-
 
 ## Technologies & Skills
 
-VoiceAI is built using a variety of technologies and demonstrates proficiency in numerous skills:
+whisper-llm-gtts is built using a variety of technologies and demonstrates proficiency in numerous skills:
 
 ### Libraries
 

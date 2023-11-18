@@ -5,12 +5,13 @@ services:
     build:
       context: ./fastapi
       dockerfile: Dockerfile-fastapi
-    #runtime: nvidia
+    image: mohcineelharras/fastapi
     env_file:
       - .env
     volumes:
       - ./models:/app/models  
-      - ./output:/app/output
+      - /mnt/wslg/:/mnt/wslg/
+      - shared-output:/app/output  
     ports:
       - "8000:8000"
     networks:
@@ -20,18 +21,18 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: ['0']
+              count: 1
               capabilities: [gpu]
-
 
   streamlit:
     build:
       context: ./streamlit_app
       dockerfile: Dockerfile-streamlit
+    image: mohcineelharras/streamlit
     env_file:
       - .env
     volumes:
-      - ./output:/output
+      - shared-output:/app/output  
     ports:
       - "8501:8501"
     depends_on:
@@ -42,3 +43,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  shared-output:  
