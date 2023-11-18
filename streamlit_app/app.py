@@ -7,16 +7,18 @@ import requests
 import pyaudio
 import wave
 
-#-----------------------------------fastapi functions-----------------------------------
+#-----------------------------------env-----------------------------------
 
 # Load environment variables from .env file
 load_dotenv(dotenv_path="../.env")
 
 # Access the variables
-url = os.getenv("url")
+url = os.getenv("URL")
 MODEL_DIR = os.getenv("MODEL_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
+OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 
+#-----------------------------------fastapi functions-----------------------------------
 
 # FastAPI request function
 # Example of sending a file
@@ -70,7 +72,7 @@ def record_audio():
     RATE = 44100
     CHUNK = 1024
     RECORD_SECONDS = 10
-    FILE_NAME = "../output/recording.wav"
+    FILE_NAME = os.path.join(OUTPUT_PATH, "recording.wav")
 
     audio = pyaudio.PyAudio()
 
@@ -110,10 +112,7 @@ def main():
         st.title("🤖 whisper - LLM - TTS 📚")
         st.write("🚀 Talk to an open source LLM!")
         st.write("This app is developed and maintained by **@mohcineelharras**")
-    
-    if not os.path.exists("../output"):
-        os.makedirs("../output")
-        
+            
     st.title('Alexa like assistant')
 
     # Create Tabs
@@ -121,7 +120,7 @@ def main():
     tab1, tab2, tab3 = st.tabs(["Record Audio", "Upload Audio File", "Ask a Question"])
     # Record Audio Tab (Placeholder)
     with tab1:
-        audio_file_path = '../output/recording.wav'
+        audio_file_path = os.path.join(OUTPUT_PATH, "recording.wav")
         st.header("Record Audio")
         if st.button('Record Audio'):
             record_audio()
@@ -151,7 +150,7 @@ def main():
             convert_text_to_speech(llm_response, language="en")
             elapsed_time = time.time() - start_time
             st.write(f"Text to speech generated in {elapsed_time:.2f} seconds.")
-            audio_file = '../output/speech.mp3'
+            audio_file = os.path.join(OUTPUT_PATH, "speech.mp3")
             if os.path.exists(audio_file):
                 st.audio(audio_file, format='audio/mp3', start_time=0)
             else:
@@ -161,7 +160,7 @@ def main():
     with tab2:
         uploaded_file = st.file_uploader("Upload an audio file:", type=['wav', 'mp3', 'm4a'])
         if uploaded_file is not None:
-            audio_file_path = os.path.join("../output", uploaded_file.name)
+            audio_file_path = os.path.join(OUTPUT_PATH, uploaded_file.name)
             with open(audio_file_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
             st.write("Uploaded audio file.")
@@ -190,7 +189,7 @@ def main():
             convert_text_to_speech(llm_response, language="en")
             elapsed_time = time.time() - start_time
             st.write(f"Text to speech generated in {elapsed_time:.2f} seconds.")
-            audio_file = '../output/speech.mp3'
+            audio_file = os.path.join(OUTPUT_PATH, "speech.mp3")
             if os.path.exists(audio_file):
                 st.audio(audio_file, format='audio/mp3', start_time=0)
             else:
@@ -217,7 +216,7 @@ def main():
                 convert_text_to_speech(llm_response, language="en")
                 elapsed_time = time.time() - start_time  # Calculate elapsed time for TTS
                 st.write(f"Text to speech generated in {elapsed_time:.2f} seconds.")
-                audio_file = '../output/speech.mp3'
+                audio_file = os.path.join(OUTPUT_PATH, "speech.mp3")
                 if os.path.exists(audio_file):
                     st.audio(audio_file, format='audio/mp3', start_time=0)
                 else:

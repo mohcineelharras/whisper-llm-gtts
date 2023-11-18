@@ -1,6 +1,5 @@
 #-----------------------------------Libraries-----------------------------------
 from fastapi import FastAPI
-from fastapi import UploadFile, File
 #from ctransformers import AutoModelForCausalLM
 from llama_cpp import Llama  
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
@@ -15,11 +14,14 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv(dotenv_path="../.env")
 # Access the variables
-url = os.getenv("url")
+url = os.getenv("URL")
 MODEL_DIR = os.getenv("MODEL_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
+OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 #print(MODEL_PATH)
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print(device)
+ngpulayers = 20 if torch.cuda.is_available() else 0
 
 
 # MODEL_DIR = "/app/models"  # Update this to the path inside the container
@@ -68,13 +70,13 @@ async def load_model():
     else:
         print("Loading Llama model...")
         llm = Llama(model_path=MODEL_PATH,
-                    n_gpu_layers=20,
-                    n_ctx=1024, n_batch=512)
+                    n_gpu_layers=ngpulayers,
+                    n_ctx=1024, n_batch=512, threads=6)
         print("Model loaded successfully.")
 
 
-if not os.path.exists("../output"):
-    os.makedirs("../output")
+if not os.path.exists(OUTPUT_PATH):
+    os.makedirs(OUTPUT_PATH)
 
 #-----------------------------------routes-----------------------------------
 # Routes for completion
@@ -92,7 +94,7 @@ async def completion(request: dict):
                     top_k=10,
                    )
     text_response = response["choices"][0]["text"]
-    with open('../output/LLM_response.txt', 'w') as file:
+    with open(os.path.join(OUTPUT_PATH, "LLM_response.txt"), 'w') as file:
         print(text_response)
         file.write(text_response)
     return {"response": text_response}
@@ -100,15 +102,17 @@ async def completion(request: dict):
 
 @app.post("/download_youtube_audio")
 async def download_youtube_audio(url: str):
-    YouTube(url).streams.filter(only_audio=True).first().download(filename="../output/output.mp3")
+    YouTube(url).streams.filter(only_audio=True).first().download(filename=os.path.join(OUTPUT_PATH, "output.mp3"))
     return {"info": "Downloaded YouTube audio"}
 
 @app.post("/convert_text_to_speech")
 async def convert_text_to_speech(request: dict, language: str = "en"):
     text = request["text"]
     tts = gTTS(text, lang=language, tld="us")
-    tts.save("../output/speech.mp3")
-    os.system("mpg321 ../output/speech.mp3")
+    file_path = os.path.join(OUTPUT_PATH, "speech.mp3")
+    tts.save(file_path)
+    command = f'mpg321 "{file_path}"'
+    os.system(command)
     return {"info": "Converted text to speech"}
 
 
@@ -133,8 +137,8 @@ async def transcribe_audio(file_path: str):
         device=device,
     )
     result_text = pipe(file_path)["text"]
-    # Save the transcription to ../output/input.txt
-    with open("../output/input.txt", "w") as file:
+    # Save the transcription to output/input.txt
+    with open(os.path.join(OUTPUT_PATH, "input.txt"), "w") as file:
         file.write(result_text)
     return result_text
 
