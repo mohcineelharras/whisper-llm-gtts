@@ -12,3 +12,6 @@ jupyter
 openai-whisper
 pydub
 tqdm
+
+#+
+accelerate
