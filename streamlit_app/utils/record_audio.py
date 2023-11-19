@@ -1,8 +1,13 @@
 import pyaudio
 import wave
 import sys 
+from dotenv import load_dotenv
+import os
+# Load environment variables from .env file
+load_dotenv(dotenv_path="../.env")
+OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 
-def record_audio(duration=5, output_path='../output/recording.wav'):
+def record_audio(duration=5, output_path=os.path.join(OUTPUT_PATH, "recording.wav")):
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
     RATE = 44100
