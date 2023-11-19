@@ -4,8 +4,9 @@ import os
 from dotenv import load_dotenv
 import time 
 import requests
-import pyaudio
-import wave
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+from record_audio import record_audio
 
 #-----------------------------------env-----------------------------------
 
@@ -17,6 +18,7 @@ url = os.getenv("URL")
 MODEL_DIR = os.getenv("MODEL_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
 OUTPUT_PATH = os.getenv("OUTPUT_PATH")
+LANGUAGE = os.getenv("LANGUAGE")
 
 #print(OUTPUT_PATH)
 #-----------------------------------fastapi functions-----------------------------------
@@ -34,7 +36,7 @@ def download_youtube_audio(video_url):
     else:
         return "Error: " + response.text
 
-def convert_text_to_speech(text, language="en"):
+def convert_text_to_speech(text, language=LANGUAGE):
     response = requests.post(
         f"http://{url}:8000/convert_text_to_speech",
         json={"text": text}  # Send data as JSON
@@ -66,45 +68,6 @@ def transcribe_audio(audio_file_path):
     else:
         return "Error: " + response.text
     
-def record_audio():
-    # Audio stream parameters
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 44100
-    CHUNK = 1024
-    RECORD_SECONDS = 10
-    FILE_NAME = os.path.join(OUTPUT_PATH, "recording.wav")
-
-    audio = pyaudio.PyAudio()
-
-    # Open audio stream
-    stream = audio.open(format=FORMAT, channels=CHANNELS,
-                        rate=RATE, input=True,
-                        frames_per_buffer=CHUNK)
-
-    print("Recording...")
-
-    frames = []
-
-    # Record for 10 seconds
-    for _ in range(int(RATE / CHUNK * RECORD_SECONDS)):
-        data = stream.read(CHUNK)
-        frames.append(data)
-
-    print("Finished recording.")
-
-    # Stop and close the stream
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
-
-    # Save recording to file
-    with wave.open(FILE_NAME, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(audio.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(b''.join(frames))
-
 #-----------------------------------streamlit frontend-----------------------------------
 
 #App
