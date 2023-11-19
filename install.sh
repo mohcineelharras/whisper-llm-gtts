@@ -9,6 +9,7 @@ export CMAKE_ARGS="-DLLAMA_CUBLAS=on"
 # Install required system packages
 sudo apt-get update
 sudo apt-get install -y python3-pyaudio python3-dev build-essential mpg321
+sudo apt-get install jq -y 
 
 
 # Install torch 

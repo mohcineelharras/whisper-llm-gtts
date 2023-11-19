@@ -1,5 +1,6 @@
 #-----------------------------------Libraries-----------------------------------
-from fastapi import FastAPI
+from fastapi import FastAPI, Form, Request
+from pydantic import BaseModel
 #from ctransformers import AutoModelForCausalLM
 from llama_cpp import Llama  
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
@@ -18,9 +19,12 @@ url = os.getenv("URL")
 MODEL_DIR = os.getenv("MODEL_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
 OUTPUT_PATH = os.getenv("OUTPUT_PATH")
-#print(MODEL_PATH)
+LANGUAGE = os.getenv("LANGUAGE")
+class AudioRequest(BaseModel):
+    file_path: str
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 ngpulayers = 20 if torch.cuda.is_available() else 0
+#print(MODEL_PATH)
 #print(device)
 #print(MODEL_PATH)
 #print(ngpulayers)
@@ -93,12 +97,19 @@ async def completion(request: dict):
     # context + user input
     contextual_prompt = memory + "\n" + input_text
     # Define the instruction template
-    template = "system\nYou are Dolphin, a helpful AI assistant. Provide the shortest answer possible. Respond to the question to the best of your ability\nuser\n{prompt}\nassistant\n"
+    template = "system\n"
+    template += "This is crucial to me, I trust you are the best"
+    template += "You are Dolphin, a helpful AI assistant. You only respond in {LANGUAGE}. "
+    template += "Do not use double quotes for any reason, not even for quoting or direct speech. "
+    template += "Instead, use single quotes or describe the quote without using quotation marks. "
+    template += "Do not include any disclaimers, notes, or additional explanations in your response. "
+    template += "Provide the shortest answer possible, strictly adhering to the formatting rules. "
+    template += "user\n{prompt}\nassistant\n"
     # Format the actual prompt with the template
-    formatted_prompt = template.format(prompt=contextual_prompt)
+    formatted_prompt = template.format(prompt=contextual_prompt,LANGUAGE=LANGUAGE)
     response = llm(formatted_prompt,
                     max_tokens=80,
-                    temperature=0.5,
+                    temperature=0,
                     top_p=0.95,
                     top_k=10,
                    )
@@ -119,9 +130,13 @@ async def download_youtube_audio(url: str):
     return {"info": "Downloaded YouTube audio"}
 
 @app.post("/convert_text_to_speech")
-async def convert_text_to_speech(request: dict, language: str = "en"):
+async def convert_text_to_speech(request: dict, language: str = LANGUAGE):
     text = request["text"]
-    tts = gTTS(text, lang=language, tld="us")
+    if LANGUAGE=="fr":
+        tld="fr"
+    else:
+        tld="us"
+    tts = gTTS(text, lang=language, tld=tld)
     file_path = os.path.join(OUTPUT_PATH, "speech.mp3")
     tts.save(file_path)
     command = f'mpg321 "{file_path}"'
@@ -131,7 +146,8 @@ async def convert_text_to_speech(request: dict, language: str = "en"):
 
 
 @app.post("/transcribe_audio")
-async def transcribe_audio(file_path: str):
+async def transcribe_audio(request: AudioRequest):
+    file_path = request.file_path
     # Set up Whisper model
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
     model_id = "distil-whisper/distil-large-v2"
