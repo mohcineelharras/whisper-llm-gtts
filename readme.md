@@ -6,10 +6,9 @@
 VoiceAI integrates the power of Text-to-Speech (TTS), Speech-to-Text (STT), and Local Language Model (LLM) technologies. This advanced AI application enables seamless conversion of text to speech, transcription of audio to text, and interaction with a local language model through an intuitive interface.
 
 ## Screenshots
-
-![Screenshot 1 Description](ressources/ask_with_text.png)
-![Screenshot 2 Description](ressources/tab_record_audio.png)
-![Screenshot 3 Description](ressources/tab_upload_file.png)
+![Screenshot 1 Description](ressources/tab_record_audio.png)
+![Screenshot 2 Description](ressources/tab_upload_file.png)
+![Screenshot 3 Description](ressources/ask_with_text.png)
 
 ## System Flowchart
 
@@ -18,9 +17,12 @@ actor User
 entity "Whisper\n(Speech-to-Text)" as Whisper
 entity "LLM\n(Local Language Model)" as LLM
 entity "TTS\n(Text-to-Speech)" as TTS
+entity "Memory" as Memory
 
 User -> Whisper : speaks into microphone
 Whisper -> LLM : transcribed text
+LLM -> Memory : save response
+Memory -> LLM : retrieve past response
 LLM -> TTS : processed response
 TTS -> User : speaks response
 @enduml
@@ -69,6 +71,12 @@ For a conventional setup using `conda`, launch `install.sh` located at the root 
 ```bash
 ./install.sh
 ```
+
+If conda is not installed in your device, this script will set everything up :
+```bash
+./install_conda.sh
+```
+
 ### Model Setup
 - Create a folder called models in root
 - Download a model 
@@ -99,6 +107,17 @@ To use whisper-llm-gtts, you need to open two terminals:
   cd streamlit_app
   streamlit run streamlit_app/run app.py
   ```
+
+### Run in terminal
+
+  ```bash
+  bash run_continious.sh
+  ```
+  or
+  ```bash
+  ./run_continious.sh
+  ```
+
 
 ## Dockerization
 

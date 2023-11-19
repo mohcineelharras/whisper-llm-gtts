@@ -134,9 +134,9 @@ async def convert_text_to_speech(request: dict, language: str = LANGUAGE):
     text = request["text"]
     if LANGUAGE=="fr":
         tld="fr"
-    else:
+    if LANGUAGE=="en":
         tld="us"
-    tts = gTTS(text, lang=language, tld=tld)
+    tts = gTTS(text, lang=LANGUAGE, tld=tld)
     file_path = os.path.join(OUTPUT_PATH, "speech.mp3")
     tts.save(file_path)
     command = f'mpg321 "{file_path}"'
