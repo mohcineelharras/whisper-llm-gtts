@@ -33,6 +33,7 @@ services:
       - .env
     volumes:
       - shared-output:/app/output  
+      - /mnt/wslg/:/mnt/wslg/
     ports:
       - "8501:8501"
     depends_on:

@@ -94,7 +94,15 @@ def main():
             start_time = time.time()
             st.header("Transcription")
             with st.spinner('Transcribing...'):
-                transcribed_text = transcribe_audio(audio_file_path)
+                response = requests.post(
+                    "http://localhost:8000/transcribe_audio",  # Replace with your actual endpoint URL
+                    json={"file_path": audio_file_path}  # Send data as JSON
+                )
+
+                if response.status_code == 200:
+                    transcribed_text = response.json()
+                else:
+                    transcribed_text = f"Error: {response.text}"
             elapsed_time = time.time() - start_time
             st.write(f"Transcribed in {elapsed_time:.2f} seconds: ")
             st.write("Transcription :",transcribed_text)
@@ -112,6 +120,7 @@ def main():
 
             # Text to Speech
             start_time = time.time()
+            st.header("Text to speech")
             convert_text_to_speech(llm_response, language="en")
             elapsed_time = time.time() - start_time
             st.write(f"Text to speech generated in {elapsed_time:.2f} seconds.")
@@ -133,7 +142,15 @@ def main():
             start_time = time.time()
             st.header("Transcription")
             with st.spinner('Transcribing...'):
-                transcribed_text = transcribe_audio(audio_file_path)
+                response = requests.post(
+                    "http://localhost:8000/transcribe_audio",  # Replace with your actual endpoint URL
+                    json={"file_path": audio_file_path}  # Send data as JSON
+                )
+
+                if response.status_code == 200:
+                    transcribed_text = response.json()
+                else:
+                    transcribed_text = f"Error: {response.text}"
             elapsed_time = time.time() - start_time
             st.write(f"Transcribed in {elapsed_time:.2f} seconds: ")
             st.write("Transcription :",transcribed_text)
