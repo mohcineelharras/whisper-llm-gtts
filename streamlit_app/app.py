@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 import time 
 import requests
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
-from record_audio import record_audio
+from utils.record_audio import record_audio
 
 #-----------------------------------env-----------------------------------
 
@@ -59,11 +58,11 @@ def get_response_from_hf_transformers(text):
 # Updated transcribe_audio function to save transcription
 def transcribe_audio(audio_file_path):
     response = requests.post(
-        f"http://{url}:8000/transcribe_audio",
-        params={"file_path": audio_file_path}  # Include the file_path parameter
+        f"http://{url}:8000/transcribe_audio",  # Replace with your actual endpoint URL
+        json={"file_path": audio_file_path}  # Send data as JSON
     )
+
     if response.status_code == 200:
-        #transcription_result = response.json()['response']
         return response.json()
     else:
         return "Error: " + response.text
@@ -94,15 +93,7 @@ def main():
             start_time = time.time()
             st.header("Transcription")
             with st.spinner('Transcribing...'):
-                response = requests.post(
-                    "http://localhost:8000/transcribe_audio",  # Replace with your actual endpoint URL
-                    json={"file_path": audio_file_path}  # Send data as JSON
-                )
-
-                if response.status_code == 200:
-                    transcribed_text = response.json()
-                else:
-                    transcribed_text = f"Error: {response.text}"
+                transcribed_text=transcribe_audio(audio_file_path)
             elapsed_time = time.time() - start_time
             st.write(f"Transcribed in {elapsed_time:.2f} seconds: ")
             st.write("Transcription :",transcribed_text)
@@ -142,15 +133,7 @@ def main():
             start_time = time.time()
             st.header("Transcription")
             with st.spinner('Transcribing...'):
-                response = requests.post(
-                    "http://localhost:8000/transcribe_audio",  # Replace with your actual endpoint URL
-                    json={"file_path": audio_file_path}  # Send data as JSON
-                )
-
-                if response.status_code == 200:
-                    transcribed_text = response.json()
-                else:
-                    transcribed_text = f"Error: {response.text}"
+                transcribed_text=transcribe_audio(audio_file_path)
             elapsed_time = time.time() - start_time
             st.write(f"Transcribed in {elapsed_time:.2f} seconds: ")
             st.write("Transcription :",transcribed_text)

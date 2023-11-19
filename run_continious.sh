@@ -15,7 +15,7 @@ fi
 record_audio() {
     local output_path=$1
     local duration=$2
-    conda run -n audio python utils/record_audio.py "$output_path" $duration
+    conda run -n audio python streamlit_app/utils/record_audio.py "$output_path" $duration
 }
 
 
