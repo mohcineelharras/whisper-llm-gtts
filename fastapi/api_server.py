@@ -20,14 +20,15 @@ MODEL_PATH = os.getenv("MODEL_PATH")
 OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 #print(MODEL_PATH)
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-print(device)
 ngpulayers = 20 if torch.cuda.is_available() else 0
-
-
+#print(device)
+#print(MODEL_PATH)
+#print(ngpulayers)
 # MODEL_DIR = "/app/models"  # Update this to the path inside the container
 # MODEL_PATH = os.path.join(MODEL_DIR, "dolphin-2.2.1-mistral-7b.Q6_K.gguf")
 # device = "cuda:0" if torch.cuda.is_available() else "cpu"
-
+memory = ""
+token_count= 0
 
 #-----------------------------------init-----------------------------------
 app = FastAPI()
@@ -60,6 +61,9 @@ app = FastAPI()
 #             threads=8,
 #             temperature=0.2
 #         )
+
+#-----------------------------------load model-----------------------------------
+
 @app.on_event("startup")
 async def load_model():
     global llm
@@ -82,22 +86,31 @@ if not os.path.exists(OUTPUT_PATH):
 # Routes for completion
 @app.post("/completion")
 async def completion(request: dict):
+    global memory
+    global token_count
+    # user input
     input_text = request["text"]
+    # context + user input
+    contextual_prompt = memory + "\n" + input_text
     # Define the instruction template
     template = "system\nYou are Dolphin, a helpful AI assistant. Provide the shortest answer possible. Respond to the question to the best of your ability\nuser\n{prompt}\nassistant\n"
     # Format the actual prompt with the template
-    formatted_prompt = template.format(prompt=input_text)
+    formatted_prompt = template.format(prompt=contextual_prompt)
     response = llm(formatted_prompt,
-                    max_tokens=50,
+                    max_tokens=80,
                     temperature=0.5,
                     top_p=0.95,
                     top_k=10,
                    )
     text_response = response["choices"][0]["text"]
+    token_count += response["usage"]["total_tokens"]
+    # Creating the memory string
+    memory = f"Prompt: {contextual_prompt}\nResponse: {text_response}"
+    #print(response)
+    #print(text_response)
     with open(os.path.join(OUTPUT_PATH, "LLM_response.txt"), 'w') as file:
-        print(text_response)
-        file.write(text_response)
-    return {"response": text_response}
+        file.write(memory)
+    return {"response": text_response, "token_count": token_count}
 
 
 @app.post("/download_youtube_audio")

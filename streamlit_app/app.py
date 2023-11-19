@@ -18,6 +18,7 @@ MODEL_DIR = os.getenv("MODEL_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
 OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 
+#print(OUTPUT_PATH)
 #-----------------------------------fastapi functions-----------------------------------
 
 # FastAPI request function
@@ -49,7 +50,7 @@ def get_response_from_hf_transformers(text):
         json={"text": text}  # Send data as JSON
     )
     if response.status_code == 200:
-        return response.json()['response']
+        return response.json()['response'], response.json()['token_count']
     else:
         return "Error: " + response.text
 
@@ -140,10 +141,11 @@ def main():
             st.header("LLM prompting")
             with st.spinner('Processing with LLM...'):
                 #llm_response = get_response_from_gpt(transcribed_text)
-                llm_response = get_response_from_hf_transformers(transcribed_text)
+                llm_response, token_count = get_response_from_hf_transformers(transcribed_text)
             elapsed_time = time.time() - start_time
             st.write(f"LLM response in {elapsed_time:.2f} seconds: ")
             st.write("LLM response :",llm_response)
+            st.write("Token count so far :",token_count)
 
             # Text to Speech
             start_time = time.time()
@@ -178,10 +180,11 @@ def main():
             st.header("LLM prompting")
             with st.spinner('Processing with LLM...'):
                 #llm_response = get_response_from_gpt(transcribed_text)
-                llm_response = get_response_from_hf_transformers(transcribed_text)
+                llm_response, token_count = get_response_from_hf_transformers(transcribed_text)
             elapsed_time = time.time() - start_time
             st.write(f"LLM response in {elapsed_time:.2f} seconds: ")
             st.write("LLM response :",llm_response)
+            st.write("Token count so far :",token_count)
 
             # Automatically generate text to speech
             start_time = time.time()
@@ -205,10 +208,11 @@ def main():
             st.header("LLM prompting")
             with st.spinner('Processing...'):
                 #llm_response = get_response_from_gpt(user_question)
-                llm_response = get_response_from_hf_transformers(user_question)
-            elapsed_time = time.time() - start_time  # Calculate elapsed time
+                llm_response, token_count = get_response_from_hf_transformers(user_question)
+            elapsed_time = time.time() - start_time
             st.write(f"LLM response in {elapsed_time:.2f} seconds: ")
             st.write("LLM response :",llm_response)
+            st.write("Token count so far :",token_count)
 
             if llm_response:
                 st.header("Text2Speech")

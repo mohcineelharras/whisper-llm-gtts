@@ -4,14 +4,14 @@ FORCE_CMAKE=1
 CMAKE_ARGS="-DLLAMA_CUBLAS=on"
 
 #when you use it in local
-url=localhost
+URL=localhost
 OUTPUT_PATH=../output/
-MODEL_DIR=models
+MODEL_DIR=../models
 MODEL_PATH=../models/dolphin-2.2.1-mistral-7b.Q6_K.gguf
 
-# #when you use docker
-# URL=fastapi
-# OUTPUT_PATH=output/
-# MODEL_DIR=/app/models
-# MODEL_PATH=/app/models/dolphin-2.2.1-mistral-7b.Q6_K.gguf
+#when you use docker
+URL=fastapi
+OUTPUT_PATH=output/
+MODEL_DIR=/app/models
+MODEL_PATH=/app/models/dolphin-2.2.1-mistral-7b.Q6_K.gguf
 

@@ -47,14 +47,18 @@ conda create -n "fastapi-server" python=3.11 -y
 # Activate env
 #source activate fastapi-server
 
+# ffmpeg
+conda run -n fastapi-server pip install ffmpeg-python -y
+
 # Install torch correctly
-conda run -n fastapi-server pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+conda run -n fastapi-server pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # Install cudatoolkit
-conda run -n fastapi-server conda install -c "nvidia/label/cuda-12.1.1" cuda-toolkit -y
+conda run -n fastapi-server conda install -c "nvidia/label/cuda-12.1.0" cuda-toolkit -y
 
 # Install llama-cpp-python with specific CMAKE_ARGS
 env CMAKE_ARGS="-DLLAMA_CUBLAS=on" conda run -n fastapi-server pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
 
 # Install other dependencies
 conda run -n fastapi-server pip install -r requirements.txt
+
