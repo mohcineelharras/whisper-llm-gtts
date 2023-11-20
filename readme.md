@@ -79,7 +79,8 @@ If conda is not installed in your device, this script will set everything up :
 
 ### Model Setup
 - Create a folder called models in root
-- Download a model 
+- Download an LLM model
+- If you want to try gradio demo download a safetensor whisper model (check space for example) 
 - Copy it in models
 - Change .env accordingly
 
@@ -89,6 +90,11 @@ whisper-llm-gtts provides robust audio and language processing features:
 
 
 ### Running the App
+
+To try gradio demo :
+```bash
+python app.py
+```
 
 To use whisper-llm-gtts, you need to open two terminals:
 

@@ -4,9 +4,7 @@ sounddevice
 pyaudio
 soundfile
 streamlit
-ipykernel
-ipywidgets
-jupyter
+gradio
 
 # back
 fastapi 

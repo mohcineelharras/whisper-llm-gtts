@@ -14,6 +14,15 @@ license: apache-2.0
 
 # VoiceAI whisper-llm-gtts
 
+## Demo
+The demo was done in gradio app to facilitate use of audio in HF spaces.
+
+https://huggingface.co/spaces/mohcineelharras/alexa-like-assistant
+
+![Gradio demo](ressources/gradio-demo.png)
+
+ 
+
 ## Overview
 
 VoiceAI integrates the power of Text-to-Speech (TTS), Speech-to-Text (STT), and Local Language Model (LLM) technologies. This advanced AI application enables seamless conversion of text to speech, transcription of audio to text, and interaction with a local language model through an intuitive interface.
