@@ -1,39 +1,38 @@
 ---
-title: Whisper Llm Gtts
+title: Alexa Like Assistant
 emoji: 🌍
 colorFrom: green
 colorTo: yellow
-sdk: streamlit
-sdk_version: 1.28.2
-app_file: streamlit/app.py
+sdk: gradio
+sdk_version: 4.4.1
+app_file: app.py
 pinned: false
 license: apache-2.0
 ---
 
-
-
 # VoiceAI whisper-llm-gtts
-
-## Demo
-The demo was done in gradio app to facilitate use of audio in HF spaces.
-
-https://huggingface.co/spaces/mohcineelharras/alexa-like-assistant
-
-![Gradio demo](ressources/gradio-demo.png)
-
- 
 
 ## Overview
 
 VoiceAI integrates the power of Text-to-Speech (TTS), Speech-to-Text (STT), and Local Language Model (LLM) technologies. This advanced AI application enables seamless conversion of text to speech, transcription of audio to text, and interaction with a local language model through an intuitive interface.
 
+## Demo
+
+The demo was done in gradio app to facilitate use of audio in HF spaces.
+
+[Gradio Demo](https://huggingface.co/spaces/mohcineelharras/alexa-like-assistant)
+
+![Gradio demo](ressources/gradio-demo.png)
+
 ## Screenshots
+
 ![Screenshot 1 Description](ressources/tab_record_audio.png)
 ![Screenshot 2 Description](ressources/tab_upload_file.png)
 ![Screenshot 3 Description](ressources/ask_with_text.png)
 
 ## System Flowchart
 
+```plaintext
 @startuml
 actor User
 entity "Whisper\n(Speech-to-Text)" as Whisper
@@ -48,7 +47,7 @@ Memory -> LLM : retrieve past response
 LLM -> TTS : processed response
 TTS -> User : speaks response
 @enduml
-
+```
 
 ![System Flowchart](ressources/uml_whisper.png)
 
@@ -56,129 +55,120 @@ TTS -> User : speaks response
 
 ### Prerequisites
 
-Ensure you have the following before proceeding with the installation:
-
 - Python 3.10 or higher
 - A GPU for running LLM + Whisper efficiently
 - Docker for containerization
 
 ### Installation
 
-Clone the project repository :
+Clone the project repository:
 
 ```bash
-git@github.com:mohcineelharras/whisper-llm-gtts.git
+git clone git@github.com:mohcineelharras/whisper-llm-gtts.git
 cd whisper-llm-gtts
 ```
 
-Dependencies installation :
+Install dependencies:
+
 ```bash
 pip install -r requirements_merged.txt
-```
-```bash
 CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
 ```
 
-If you have got problems with offloading some layers to GPU for acceleration of token generation. try this :
+If you encounter issues with GPU acceleration, try installing the CUDA toolkit:
+
 ```bash
 conda install -c "nvidia/label/cuda-12.1.1" cuda-toolkit
 ```
 
 ### Automatic Environment Setup
 
-- Set variables correctly in .envtemplate
-- Rename it to .env
+Set up the environment using the `.envtemplate` provided, then rename it to `.env`.
 
-For a conventional setup using `conda`, launch `install.sh` located at the root of the project. This script automates creating an env called `audio` and dependencies installation:
+To automate the creation of a `conda` environment called `audio` and install dependencies, run:
+
 ```bash
 ./install.sh
 ```
 
-If conda is not installed in your device, this script will set everything up :
+If you don't have `conda`, use the following script to set it up:
+
 ```bash
 ./install_conda.sh
 ```
 
 ### Model Setup
-- Create a folder called models in root
-- Download a model 
-- Copy it in models
-- Change .env accordingly
+
+Create a `models` folder in the root directory, download the desired LLM model, place it in the `models` folder, and adjust the `.env` file accordingly.
 
 ## Usage
 
-whisper-llm-gtts provides robust audio and language processing features:
+To try the Gradio demo:
 
+```bash
+python app.py
+```
 
-### Running the App
+To use whisper-llm-gtts, open two terminals:
 
-To use whisper-llm-gtts, you need to open two terminals:
+In the first terminal, activate the `audio` environment and launch FastAPI:
 
-- In the first terminal, launch FastAPI:
+```bash
+conda activate audio
+cd fastapi
+python fastapi/api_server.py
+```
 
-  ```bash
-  conda activate audio
-  cd fastapi
-  python fastapi/api_server.py
-  ```
+In the second terminal, activate the `audio` environment and start the Streamlit frontend:
 
-- In the second terminal, start the Streamlit frontend:
+```bash
+conda activate audio
+cd streamlit_app
+streamlit run streamlit_app/run app.py
+```
 
-  ```bash
-  conda activate audio
-  cd streamlit_app
-  streamlit run streamlit_app/run app.py
-  ```
+To run in the terminal:
 
-### Run in terminal
-
-  ```bash
-  bash run_continious.sh
-  ```
-  or
-  ```bash
-  ./run_continious.sh
-  ```
-
+```bash
+bash run_continious.sh
+# or
+./run_continious.sh
+```
 
 ## Dockerization
 
-The optimal way to run whisper-llm-gtts with Docker is using Docker Compose:
+Before building the Docker image, ensure the Docker section in the `.env` file is uncommented. Create a `models` folder and download the model you wish to use.
 
-⚠️⚠️⚠️ before building image. Make sure you uncomment docker section in .env file
-
-Afterwards, you have to create a folder names models and download the model you want to use in it
-
-Then, run this command in the root of the project to build and start the containers.
+Build and start the containers using Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-
 ## Technologies & Skills
 
-whisper-llm-gtts is built using a variety of technologies and demonstrates proficiency in numerous skills:
+VoiceAI whisper-llm-gtts employs various technologies and showcases multiple skills:
 
 ### Libraries
 
-- **FastAPI**: An innovative web framework for building APIs with Python based on standard Python type hints.
-- **Streamlit**: An open-source app framework for Machine Learning and Data Science teams.
-- **Whisper**: OpenAI's general-purpose speech recognition model for transcribing speech.
-- **gTTS (Google Text-to-Speech)**: A Python library and CLI tool to interface with Google Translate's text-to-speech API.
-- **PyTorch**: An open-source machine learning library based on the Torch library, used for applications such as computer vision and natural language processing.
+- **FastAPI**
+- **Streamlit**
+- **Whisper**
+- **gTTS (Google Text-to-Speech)**
+- **PyTorch**
 
 ### Skills
 
-- **API Development**: Designing and creating robust APIs for efficient communication between different software components.
-- **Machine Learning**: Applying models to perform tasks such as speech recognition and language understanding.
-- **Full Stack Development**: Implementing both backend and frontend components of the application.
-- **Dockerization**: Containerizing applications for ease of deployment and scalability.
-- **Audio Processing**: Handling and processing audio data for transcription and speech synthesis.
+- API Development
+- Machine Learning
+- Full Stack Development
+- Dockerization
+- Audio Processing
 
 ### Tools
 
-- **Docker & Docker Compose**: For containerizing the application and managing multi-container Docker applications.
-- **Git**: For version control and source code management.
-- **Uvicorn**: An ASGI server for Python, used to run FastAPI applications.
+- Docker & Docker Compose
+- Git
+- Uvicorn
+
 
