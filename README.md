@@ -70,6 +70,12 @@ cd whisper-llm-gtts
 
 Install dependencies:
 
+install ffmpeg
+
+```bash
+sudo apt-get install ffmpeg
+```
+
 ```bash
 pip install -r requirements_merged.txt
 CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
